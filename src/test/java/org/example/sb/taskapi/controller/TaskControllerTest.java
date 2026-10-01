@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 @SpringBootTest
@@ -129,5 +129,30 @@ class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("수정 후 제목"))
                 .andExpect(jsonPath("$.completed").value(true));
+    }
+
+    @Test
+    void deleteTaskAndReturn404AfterDeletion() throws Exception {
+        String requestJson = """
+            {
+              "title": "삭제 테스트",
+              "description": "삭제 후 404 확인",
+              "dueDate": "2026-10-25",
+              "priority": 1,
+              "completed": false,
+              "category": "테스트"
+            }
+            """;
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(delete("/api/tasks/1"))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/tasks/1"))
+                .andExpect(status().isNotFound());
     }
 }
