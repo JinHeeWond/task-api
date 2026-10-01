@@ -69,4 +69,28 @@ class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("조회 테스트"));
     }
+
+    @Test
+    void findTaskById() throws Exception {
+        String requestJson = """
+            {
+              "title": "단건 조회 테스트",
+              "description": "id로 조회",
+              "dueDate": "2026-10-22",
+              "priority": 4,
+              "completed": false,
+              "category": "테스트"
+            }
+            """;
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/tasks/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("단건 조회 테스트"));
+    }
 }
