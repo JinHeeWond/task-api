@@ -5,7 +5,7 @@
 
 - Organization Repository: https://github.com/2026-2-WebService/assign05-c01-22300743
 - Personal Repository: https://github.com/JinHeeWond/task-api
-- Deployment URL: 배포 후 업데이트 예정
+- Deployment URL: https://task-api-taz1.onrender.com
 
 ## 1. 프로젝트 소개
 
@@ -185,8 +185,21 @@ Docker 컨테이너에서도 `POST /api/tasks`를 실행해 `"id": 1` 응답을 
 
 ## 8. 배포 과정 요약
 
-Dockerfile을 작성해 Gradle 빌드와 Java 17 실행 환경을 분리했습니다.  
-`application.properties`에는 아래 설정을 추가해 배포 환경의 PORT를 사용하도록 했습니다.
+Dockerfile을 작성해 Gradle로 JAR 파일을 빌드하고 Java 17 JRE 컨테이너에서 실행하도록 구성했습니다. Render에서는 Docker 환경으로 개인 GitHub Repository를 연결해 배포했습니다.
+
+배포 URL: https://task-api-taz1.onrender.com
+
+배포 URL 테스트 결과:
+
+| 요청 | 실제 결과 |
+|---|---|
+| GET `https://task-api-taz1.onrender.com/api/tasks` | `[]` 반환으로 서버 실행 확인 |
+| POST `https://task-api-taz1.onrender.com/api/tasks` | `201 Created`와 함께 `id: 1` 데이터 생성 |
+| GET `https://task-api-taz1.onrender.com/api/tasks?completed=false` | `completed: false`인 배포 서버 테스트 데이터 반환 |
+
+배포 중에는 처음에 유료 Compute 플랜이 선택되어 있어 Free 플랜으로 변경했습니다. 또한 `application.properties`에 `server.port=${PORT:8080}`을 추가하여 Render의 포트 환경변수를 사용할 수 있도록 했습니다.
+
+메모리 저장소를 사용하므로 서버가 재시작되면 등록한 데이터가 사라질 수 있습니다.
 
 ```properties
 server.port=${PORT:8080}
