@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -92,5 +92,42 @@ class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("단건 조회 테스트"));
+    }
+
+    @Test
+    void updateTask() throws Exception {
+        String createJson = """
+            {
+              "title": "수정 전 제목",
+              "description": "수정 전 설명",
+              "dueDate": "2026-10-23",
+              "priority": 2,
+              "completed": false,
+              "category": "테스트"
+            }
+            """;
+
+        String updateJson = """
+            {
+              "title": "수정 후 제목",
+              "description": "수정 후 설명",
+              "dueDate": "2026-10-24",
+              "priority": 5,
+              "completed": true,
+              "category": "백엔드"
+            }
+            """;
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createJson))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(put("/api/tasks/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("수정 후 제목"))
+                .andExpect(jsonPath("$.completed").value(true));
     }
 }
